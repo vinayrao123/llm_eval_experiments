@@ -13,7 +13,7 @@ sentiment_data = {
         'INNOVATION_GROWTH': 5.0,
         'COMMUNITY_IMPACT': 80.6,
         'ENVIRONMENTAL_STEWARDSHIP': 5.1,
-        'ETHICAL_GOVERNANCE': 2.9,
+        'ETHICAL_GOVERNANCE': 2.9
         'EMPLOYEE_WELLBEING': 6.3,
         'UNCATEGORIZED': 0.1
     },
