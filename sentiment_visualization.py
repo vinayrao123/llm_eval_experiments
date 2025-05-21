@@ -7,6 +7,16 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 import io
 
+# Define consistent category order
+SENTIMENT_CATEGORIES = [
+    'COMMUNITY_IMPACT',
+    'ENVIRONMENTAL_STEWARDSHIP',
+    'EMPLOYEE_WELLBEING',
+    'INNOVATION_GROWTH',
+    'ETHICAL_GOVERNANCE',
+    'UNCATEGORIZED'
+]
+
 # Data from the analysis
 sentiment_data = {
     'CSR_2023_24': {
@@ -42,8 +52,10 @@ sentiment_data = {
 
 def create_bar_chart(data, title, filename):
     plt.figure(figsize=(10, 6))
-    sentiments = list(data.keys())
-    percentages = list(data.values())
+    
+    # Use consistent category order
+    sentiments = [cat for cat in SENTIMENT_CATEGORIES if cat in data]
+    percentages = [data[cat] for cat in sentiments]
     
     # Create bar chart
     bars = plt.bar(sentiments, percentages)
@@ -73,17 +85,14 @@ def create_bar_chart(data, title, filename):
 
 def create_expected_distribution():
     # Calculate average distribution from source documents
-    all_sentiments = set()
-    for doc in ['CSR_2023_24', 'CSR_2024_25']:
-        all_sentiments.update(sentiment_data[doc].keys())
-    
     expected_dist = {}
-    for sentiment in all_sentiments:
+    for sentiment in SENTIMENT_CATEGORIES:
         values = []
         for doc in ['CSR_2023_24', 'CSR_2024_25']:
             if sentiment in sentiment_data[doc]:
                 values.append(sentiment_data[doc][sentiment])
-        expected_dist[sentiment] = sum(values) / len(values)
+        if values:  # Only include sentiments that exist in source documents
+            expected_dist[sentiment] = sum(values) / len(values)
     
     return expected_dist
 
@@ -101,6 +110,32 @@ def generate_pdf():
     )
     story.append(Paragraph("Sentiment Analysis Results", title_style))
     story.append(Spacer(1, 20))
+    
+    # Hypothesis Section
+    story.append(Paragraph("Hypothesis", styles['Heading2']))
+    story.append(Spacer(1, 12))
+    
+    hypothesis_text = """
+    The sentiment analysis of each line of each document around 5 identified sentiments (Innovation & Growth, Community Impact, Environmental Stewardship, Ethical Governance, and Employee Wellbeing) yields a percentage distribution of each sentiment in each document. The generated summary should reflect at least the average distribution of these sentiments present in the source documents.
+    """
+    story.append(Paragraph(hypothesis_text, styles['Normal']))
+    story.append(Spacer(1, 20))
+    
+    # Findings Section
+    story.append(Paragraph("Findings", styles['Heading2']))
+    story.append(Spacer(1, 12))
+    
+    findings_text = """
+    The results demonstrate that incorporating sentiment analysis into the prompt engineering process significantly improved the alignment between the source document sentiment distribution and the generated summary. The improved version shows a much closer match to the source documents' emphasis on Community Impact, which was the dominant sentiment in both source documents.
+    
+    Key observations:
+    1. Community Impact was the dominant sentiment in both source documents (80.6% in 2023-24 and 67.4% in 2024-25)
+    2. Without sentiment analysis guidance, the summary showed a more balanced distribution (35.7% Community Impact)
+    3. With sentiment analysis-based prompt improvement, the summary better reflected the source documents' emphasis (62.5% Community Impact)
+    4. The improved version maintained better proportions across all sentiment categories, particularly in Environmental Stewardship (18.8%) and other categories
+    """
+    story.append(Paragraph(findings_text, styles['Normal']))
+    story.append(Spacer(1, 30))
     
     # Source Document Distributions
     story.append(Paragraph("Source Document Sentiment Distributions", styles['Heading2']))
